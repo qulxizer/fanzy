@@ -1,0 +1,5 @@
+../Core/Src/logger.c:13:13:err_level_string	16	static
+../Core/Src/logger.c:23:6:log_error	16	static
+../Core/Src/logger.c:27:6:log_warn	16	static
+../Core/Src/logger.c:31:6:log_info	16	static
+../Core/Src/logger.c:36:6:write_log	16	static
