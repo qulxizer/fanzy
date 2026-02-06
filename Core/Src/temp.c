@@ -14,7 +14,11 @@
 #define VREF          3.3f
 
 #include <math.h>
+#include <main.h>
+#include "usart.h"
+#include <inttypes.h>
 #include "adc.h"
+#include "stdio.h"
 
 float read_temp(void)
 {

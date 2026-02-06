@@ -35,17 +35,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_rnglists 00000ae8  00000000  00000000  00017010  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00019f5a  00000000  00000000  00017af8  2**0
+ 16 .debug_macro  0001a449  00000000  00000000  00017af8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0001176d  00000000  00000000  00031a52  2**0
+ 17 .debug_line   000117b5  00000000  00000000  00031f41  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00091a9a  00000000  00000000  000431bf  2**0
+ 18 .debug_str    00092ad3  00000000  00000000  000436f6  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000d4c59  2**0
+ 19 .comment      00000043  00000000  00000000  000d61c9  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000042e0  00000000  00000000  000d4c9c  2**2
+ 20 .debug_frame  000042e0  00000000  00000000  000d620c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000051  00000000  00000000  000d8f7c  2**0
+ 21 .debug_line_str 00000051  00000000  00000000  000da4ec  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1847,9 +1847,9 @@ void SystemInit (void)
  8000da2:	4770      	bx	lr
 
 08000da4 <read_temp>:
-
-#include <math.h>
+#include <inttypes.h>
 #include "adc.h"
+#include "stdio.h"
 
 float read_temp(void)
 {
@@ -2175,9 +2175,9 @@ void MX_TIM2_Init(void)
  8000fb0:	4b2d      	ldr	r3, [pc, #180]	@ (8001068 <MX_TIM2_Init+0xe8>)
  8000fb2:	f04f 4280 	mov.w	r2, #1073741824	@ 0x40000000
  8000fb6:	601a      	str	r2, [r3, #0]
-  htim2.Init.Prescaler = 3600-1;
+  htim2.Init.Prescaler = 400-1;
  8000fb8:	4b2b      	ldr	r3, [pc, #172]	@ (8001068 <MX_TIM2_Init+0xe8>)
- 8000fba:	f640 620f 	movw	r2, #3599	@ 0xe0f
+ 8000fba:	f240 128f 	movw	r2, #399	@ 0x18f
  8000fbe:	605a      	str	r2, [r3, #4]
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
  8000fc0:	4b29      	ldr	r3, [pc, #164]	@ (8001068 <MX_TIM2_Init+0xe8>)
