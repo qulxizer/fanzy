@@ -22,6 +22,7 @@
 
 float read_temp(void)
 {
+	return 50.0;
     uint32_t adc;
 
     HAL_ADC_Start(&hadc1);
