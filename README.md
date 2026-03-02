@@ -1,10 +1,8 @@
 # Fanzy – Automotive Fan Controller (STM32F103)
-___
 Embedded fan controller designed for Bosch radiator fan modules commonly used in German vehicles (e.g., Mercedes platforms).
 Built on the STM32F1 series using STM32CubeIDE and HAL.
 
 # Overview
-___
 Fanzy reads coolant temperature via an NTC sensor and generates a PWM control signal to drive an external Bosch fan module.
 The high-current switching is handled by the fan controller module — the MCU only provides the control signal.
 
@@ -15,7 +13,6 @@ Target use cases:
 - Standalone fan management systems
 
 # Firmware Architecture
-___
 
 | Peripheral | Purpose                             |
 | ---------- | ----------------------------------- |
