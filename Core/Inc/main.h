@@ -61,8 +61,8 @@ void Error_Handler(void);
 #define AC_SIG_GPIO_Port GPIOA
 #define NTC_SIG_Pin GPIO_PIN_7
 #define NTC_SIG_GPIO_Port GPIOA
-#define PWM_SIG_Pin GPIO_PIN_8
-#define PWM_SIG_GPIO_Port GPIOA
+#define LED_Pin GPIO_PIN_8
+#define LED_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
