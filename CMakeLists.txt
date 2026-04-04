@@ -23,16 +23,19 @@ add_subdirectory(cmake/stm32cubemx)
 
 # User sources
 target_sources(${PROJECT_NAME} PRIVATE
-    # your files here
+    Core/Src/
+    Core/Src/temp.c
+    Core/Src/logger.c
 )
 
 # Includes
 target_include_directories(${PROJECT_NAME} PRIVATE
-    # your include paths
+    Core/Inc
 )
 
 # Defines
 target_compile_definitions(${PROJECT_NAME} PRIVATE
+
     # your macros
 )
 
