@@ -66,3 +66,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 
     # Add user defined libraries
 )
+add_custom_command(TARGET fanzy POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:fanzy> $<TARGET_FILE_DIR:fanzy>/fanzy.bin
+    COMMENT "Generating binary..."
+)
