@@ -20,13 +20,14 @@
 #define FAN_PWM_INVERTED 1
 
 #define FAN_TEMP_ON_C 60.0f
-#define FAN_TEMP_FULL_C 100.0f
+#define FAN_TEMP_FULL_C 85.0f
 
 #define FAN_MIN_DUTY 20.0f
 #define FAN_MAX_DUTY 90.0f
 
 // AC CONFIG
 #define AC_PULLUP 1
+#define AC_MIN_SPEED 50.0f
 #define AC_MULTIPLIER 2.0f
 
 #endif // !FZ_CONFIG_H

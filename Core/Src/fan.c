@@ -40,7 +40,11 @@ void fan_set_duty(temperature_t temp) {
   int duty = FAN_MIN_DUTY + (int)(ratio * (FAN_MAX_DUTY - FAN_MIN_DUTY));
 
   if (ac_signal_read() == GPIO_PIN_RESET) {
-    fan_pwm_set_raw(duty * AC_MULTIPLIER);
+    duty = duty * AC_MULTIPLIER;
+    if (duty < AC_MIN_SPEED) {
+      duty = AC_MIN_SPEED;
+    }
+    fan_pwm_set_raw(duty);
   } else {
     fan_pwm_set_raw(duty);
   }
