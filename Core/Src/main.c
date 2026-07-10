@@ -20,6 +20,7 @@
 #include "main.h"
 #include "adc.h"
 #include "gpio.h"
+#include "stm32g0xx_hal_def.h"
 #include "tim.h"
 #include "usart.h"
 
@@ -28,6 +29,8 @@
 #include "config.h"
 #include "fan.h"
 #include "temp.h"
+#include <stdint.h>
+#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -80,6 +83,7 @@ int main(void) {
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+  HAL_Delay(2000);
 
   /* USER CODE END Init */
 
@@ -97,13 +101,18 @@ int main(void) {
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  uint32_t status = init_config();
+
   fan_init();
+  const char msg[] = "Hello, world!\r\n";
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
+    HAL_HalfDuplex_EnableTransmitter(&huart2);
+    HAL_UART_Transmit(&huart2, (uint8_t *)msg, strlen(msg), HAL_MAX_DELAY);
     temperature_t temp = {0};
     temp_status_t status = read_temp(&temp);
     if (status != TEMP_OK) {
