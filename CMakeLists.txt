@@ -47,6 +47,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/temp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/config.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/fan.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/proto.c
     # Add user sources here
 )
 

@@ -20,6 +20,7 @@
 #include "main.h"
 #include "adc.h"
 #include "gpio.h"
+#include "proto.h"
 #include "stm32g0xx_hal_def.h"
 #include "tim.h"
 #include "usart.h"
@@ -113,15 +114,13 @@ int main(void) {
   }
 
   fan_init();
-  const char msg[] = "Hello, world!\r\n";
+  init_proto();
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
-    HAL_HalfDuplex_EnableTransmitter(&huart2);
-    HAL_UART_Transmit(&huart2, (uint8_t *)msg, strlen(msg), HAL_MAX_DELAY);
     temperature_t temp = {0};
     temp_status_t status = read_temp(&cfg, &temp);
     if (status != TEMP_OK) {
