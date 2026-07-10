@@ -101,7 +101,16 @@ int main(void) {
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  uint32_t status = init_config();
+  uint32_t s = init_config();
+  if (s != CONFIG_OK) {
+    return s;
+  }
+
+  config_t cfg = {0};
+  s = load_config(&cfg);
+  if (s != CONFIG_OK) {
+    return s;
+  }
 
   fan_init();
   const char msg[] = "Hello, world!\r\n";
@@ -114,9 +123,9 @@ int main(void) {
     HAL_HalfDuplex_EnableTransmitter(&huart2);
     HAL_UART_Transmit(&huart2, (uint8_t *)msg, strlen(msg), HAL_MAX_DELAY);
     temperature_t temp = {0};
-    temp_status_t status = read_temp(&temp);
+    temp_status_t status = read_temp(&cfg, &temp);
     if (status != TEMP_OK) {
-      fan_set_duty(FAN_TEMP_FULL_C);
+      fan_set_duty(cfg.fan_temp_full_c);
       continue;
     }
 

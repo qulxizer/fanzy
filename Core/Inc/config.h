@@ -8,18 +8,18 @@ typedef struct __attribute__((aligned(8))) {
   bool temp_divider_pu;
   bool fan_pwm_inverted;
   bool ac_pullup;
-  float temp_r_fixed_ohm;
-  float temp_adc_max;
-  float temp_adc_min;
-  float temp_adc_short_threshold;
-  float temp_adc_open_threshold;
-  float temp_min_valid_c;
-  float temp_max_valid_c;
+  int temp_r_fixed_ohm;
+  int temp_adc_max;
+  int temp_adc_min;
+  int temp_adc_short_threshold;
+  int temp_adc_open_threshold;
+  int temp_min_valid_c;
+  int temp_max_valid_c;
   float fan_temp_on_c;
   float fan_temp_full_c;
-  float ac_multiplier;
   int fan_min_duty;
   int fan_max_duty;
+  float ac_multiplier;
   int ac_min_speed;
 } config_t;
 

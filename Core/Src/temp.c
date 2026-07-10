@@ -86,10 +86,10 @@ static temp_status_t adc_read_temp_channel(uint16_t *adc) {
 
   return TEMP_OK;
 }
-static float ntc_resistance_from_adc(uint16_t adc) {
+static float ntc_resistance_from_adc(config_t *cfg, uint16_t adc) {
   if (adc == 0)
     return INFINITY;
-  if (adc >= TEMP_ADC_MAX)
+  if (adc >= cfg->temp_adc_max)
     return 0.0f;
 
 #if TEMP_DIVIDER_PULLUP
@@ -97,10 +97,11 @@ static float ntc_resistance_from_adc(uint16_t adc) {
   return TEMP_R_FIXED_OHM * ((float)adc / (TEMP_ADC_MAX - (float)adc));
 #else
   // VCC -- NTC -- ADC -- fixed resistor -- GND
-  return TEMP_R_FIXED_OHM * ((TEMP_ADC_MAX - (float)adc) / (float)adc);
+  return cfg->temp_r_fixed_ohm *
+         ((cfg->temp_adc_max - (float)adc) / (float)adc);
 #endif
 }
-temp_status_t read_temp(temperature_t *temp) {
+temp_status_t read_temp(config_t *cfg, temperature_t *temp) {
   if (temp == NULL) {
     return TEMP_ERR_NULL;
   }
@@ -111,22 +112,22 @@ temp_status_t read_temp(temperature_t *temp) {
     return status;
   }
 
-  if (adc <= TEMP_ADC_SHORT_THRESHOLD) {
+  if (adc <= cfg->temp_adc_short_threshold) {
     return TEMP_ERR_SHORT_CIRCUIT;
   }
 
-  if (adc >= TEMP_ADC_OPEN_THRESHOLD) {
+  if (adc >= cfg->temp_adc_open_threshold) {
     return TEMP_ERR_OPEN_CIRCUIT;
   }
 
-  const resistance_t r = ntc_resistance_from_adc(adc);
+  const resistance_t r = ntc_resistance_from_adc(cfg, adc);
   temperature_t t = {0};
   status = ntc_temp_from_resistance(&r, &t);
   if (status != TEMP_OK) {
     return status;
   }
 
-  if (t < -40.0f || t > 150.0f) {
+  if (t < cfg->temp_min_valid_c || t > cfg->temp_max_valid_c) {
     return TEMP_ERR_OUT_OF_RANGE;
   }
 

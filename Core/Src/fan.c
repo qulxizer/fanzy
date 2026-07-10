@@ -26,23 +26,25 @@ static void fan_pwm_set_raw(uint8_t duty) {
   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, duty);
 }
 
-void fan_set_duty(temperature_t temp) {
-  if (temp < FAN_TEMP_ON_C) {
+void fan_set_duty(config_t *cfg, temperature_t temp) {
+  if (temp < cfg->fan_temp_on_c) {
     fan_pwm_set_raw(0);
     return;
   }
-  float ratio = (temp - FAN_TEMP_ON_C) / (FAN_TEMP_FULL_C - FAN_TEMP_ON_C);
+  float ratio =
+      (temp - cfg->fan_temp_on_c) / (cfg->fan_temp_full_c - cfg->fan_temp_on_c);
   if (ratio < 0.0f)
     ratio = 0.0f;
   if (ratio > 1.0f)
     ratio = 1.0f;
 
-  int duty = FAN_MIN_DUTY + (int)(ratio * (FAN_MAX_DUTY - FAN_MIN_DUTY));
+  int duty = cfg->fan_min_duty +
+             (int)(ratio * (cfg->fan_max_duty - cfg->fan_min_duty));
 
   if (ac_signal_read() == GPIO_PIN_RESET) {
-    duty = duty * AC_MULTIPLIER;
-    if (duty < AC_MIN_SPEED) {
-      duty = AC_MIN_SPEED;
+    duty = duty * cfg->ac_multiplier;
+    if (duty < cfg->ac_min_speed) {
+      duty = cfg->ac_min_speed;
     }
     fan_pwm_set_raw(duty);
   } else {

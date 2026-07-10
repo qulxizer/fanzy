@@ -1,6 +1,7 @@
 #ifndef FZ_TEMP_H
 #define FZ_TEMP_H
 
+#include "config.h"
 #include <stddef.h>
 typedef float temperature_t;
 typedef float resistance_t;
@@ -22,6 +23,6 @@ typedef enum {
   TEMP_ERR_OUT_OF_RANGE
 } temp_status_t;
 
-temp_status_t read_temp(temperature_t *temp);
+temp_status_t read_temp(config_t *cfg, temperature_t *temp);
 
 #endif // !FZ_TEMP_H
