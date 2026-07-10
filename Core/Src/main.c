@@ -125,11 +125,11 @@ int main(void) {
     temperature_t temp = {0};
     temp_status_t status = read_temp(&cfg, &temp);
     if (status != TEMP_OK) {
-      fan_set_duty(cfg.fan_temp_full_c);
+      fan_set_duty(&cfg, cfg.fan_temp_full_c);
       continue;
     }
 
-    fan_set_duty(temp);
+    fan_set_duty(&cfg, temp);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

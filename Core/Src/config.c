@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 
-uint32_t write_cfg(config_t *cfg) {
+config_status_t write_cfg(config_t *cfg) {
   static FLASH_EraseInitTypeDef EraseInitStruct;
   uint32_t PAGEError;
   EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;

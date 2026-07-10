@@ -10,7 +10,7 @@ typedef enum {
 } fan_status_t;
 
 #include <stdint.h>
-void fan_set_duty(temperature_t temp);
+void fan_set_duty(config_t *cfg, temperature_t temp);
 void fan_init(void);
 
 #endif // !FZ_FAN_H
