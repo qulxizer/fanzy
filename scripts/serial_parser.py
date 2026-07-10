@@ -16,7 +16,7 @@ def process_payload(msg_id, payload_bytes):
         f"📦 Received Packet - Msg ID: {msg_id}, Payload Size: {len(payload_bytes)} bytes"
     )
 
-    if msg_id == 1:  # Assuming 1 is your MSG_ID_INIT
+    if msg_id == 0x67:  # Assuming 1 is your MSG_ID_INIT
         # 'I' = uint32 (version), 'I' = uint32 (device_uid)
         # matches your proto_msg_init_t exactly
         try:

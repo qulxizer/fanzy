@@ -20,8 +20,7 @@
 #include "main.h"
 #include "adc.h"
 #include "gpio.h"
-#include "proto.h"
-#include "stm32g0xx_hal_def.h"
+#include "stm32g0xx_hal.h"
 #include "tim.h"
 #include "usart.h"
 
@@ -29,9 +28,11 @@
 /* USER CODE BEGIN Includes */
 #include "config.h"
 #include "fan.h"
+#include "proto.h"
+#include "stdint.h"
 #include "temp.h"
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -64,7 +65,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -115,12 +115,26 @@ int main(void) {
 
   fan_init();
   init_proto();
+  uint8_t data;
+
+  HAL_HalfDuplex_EnableReceiver(&huart2);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
+    if (HAL_UART_Receive(&huart2, &data, 1, 1000) == HAL_OK) {
+      uint8_t reply = 'B';
+
+      HAL_Delay(10);
+
+      HAL_HalfDuplex_EnableTransmitter(&huart2);
+      HAL_UART_Transmit(&huart2, &reply, 1, HAL_MAX_DELAY);
+
+      while (!__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC)) {
+      }
+    }
     temperature_t temp = {0};
     temp_status_t status = read_temp(&cfg, &temp);
     if (status != TEMP_OK) {
@@ -129,6 +143,7 @@ int main(void) {
     }
 
     fan_set_duty(&cfg, temp);
+    HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
