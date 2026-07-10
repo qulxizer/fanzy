@@ -21,6 +21,7 @@
 #include "adc.h"
 #include "gpio.h"
 #include "stm32g0xx_hal.h"
+#include "stm32g0xx_hal_def.h"
 #include "tim.h"
 #include "usart.h"
 
@@ -102,13 +103,13 @@ int main(void) {
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  uint32_t s = init_config();
-  if (s != CONFIG_OK) {
-    return s;
-  }
+  // uint32_t s = init_config();
+  // if (s != CONFIG_OK) {
+  //   return s;
+  // }
 
   config_t cfg = {0};
-  s = load_config(&cfg);
+  uint32_t s = load_config(&cfg);
   if (s != CONFIG_OK) {
     return s;
   }
@@ -116,6 +117,7 @@ int main(void) {
   fan_init();
   init_proto();
   uint8_t data;
+  uint8_t reply = 'Z';
 
   HAL_HalfDuplex_EnableReceiver(&huart2);
 
@@ -124,15 +126,13 @@ int main(void) {
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
-    if (HAL_UART_Receive(&huart2, &data, 1, 1000) == HAL_OK) {
-      uint8_t reply = 'B';
+    HAL_HalfDuplex_EnableReceiver(&huart2);
 
-      HAL_Delay(10);
-
+    if (HAL_UART_Receive(&huart2, &data, 1, 10) == HAL_OK && data == 'A') {
       HAL_HalfDuplex_EnableTransmitter(&huart2);
-      HAL_UART_Transmit(&huart2, &reply, 1, HAL_MAX_DELAY);
+      HAL_UART_Transmit(&huart2, &reply, 1, 100);
 
-      while (!__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC)) {
+      while (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC) == RESET) {
       }
     }
     temperature_t temp = {0};
