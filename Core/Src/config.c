@@ -43,7 +43,13 @@ config_status_t load_config(config_t *cfg) {
 }
 
 config_status_t init_config(void) {
-  config_t cfg = {.ac_min_speed = AC_MIN_SPEED,
+  config_t fcfg = {};
+  load_config(&fcfg);
+  if (fcfg.magic == 0x46415A59u) {
+    return CONFIG_OK;
+  }
+  config_t cfg = {.magic = CONFIG_MAGIC,
+                  .ac_min_speed = AC_MIN_SPEED,
                   .ac_multiplier = AC_MULTIPLIER,
                   .ac_pullup = AC_PULLUP,
                   .fan_pwm_inverted = FAN_PWM_INVERTED,

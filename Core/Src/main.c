@@ -22,6 +22,7 @@
 #include "gpio.h"
 #include "stm32g0xx_hal.h"
 #include "stm32g0xx_hal_def.h"
+#include "stm32g0xx_hal_uart.h"
 #include "tim.h"
 #include "usart.h"
 
@@ -33,7 +34,6 @@
 #include "stdint.h"
 #include "temp.h"
 #include <stdint.h>
-#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -66,6 +66,18 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+volatile bool pkt_ready = false;
+uint8_t pkt_buf[sizeof(proto_packet_t)];
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+  if (huart->Instance != huart2.Instance) {
+    return;
+  }
+  pkt_ready = true;
+  HAL_UARTEx_ReceiveToIdle_IT(&huart2, pkt_buf, sizeof(proto_packet_t));
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -103,42 +115,52 @@ int main(void) {
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  // uint32_t s = init_config();
-  // if (s != CONFIG_OK) {
-  //   return s;
-  // }
+  uint32_t s = init_config();
+  if (s != CONFIG_OK) {
+    return s;
+  }
 
   config_t cfg = {0};
-  uint32_t s = load_config(&cfg);
+  s = load_config(&cfg);
   if (s != CONFIG_OK) {
     return s;
   }
 
   fan_init();
-  init_proto();
-  uint8_t data;
-  uint8_t reply = 'Z';
+  handle_msg_init();
 
   HAL_HalfDuplex_EnableReceiver(&huart2);
+  HAL_UARTEx_ReceiveToIdle_IT(&huart2, pkt_buf, sizeof(proto_packet_t));
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
-    HAL_HalfDuplex_EnableReceiver(&huart2);
+    if (pkt_ready) {
+      proto_packet_t *pkt = (proto_packet_t *)pkt_buf;
+      proto_packet_t resp_pkt = {0};
 
-    if (HAL_UART_Receive(&huart2, &data, 1, 10) == HAL_OK && data == 'A') {
-      HAL_HalfDuplex_EnableTransmitter(&huart2);
-      HAL_UART_Transmit(&huart2, &reply, 1, 100);
-
-      while (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_TC) == RESET) {
+      if (pkt->msg_id == 1) {
+        resp_pkt.msg_id = 99;
+        resp_pkt.length = 0;
+        HAL_UART_AbortReceive_IT(&huart2);
+        HAL_HalfDuplex_EnableTransmitter(&huart2);
+        HAL_UART_Transmit(&huart2, (uint8_t *)&resp_pkt, sizeof(proto_packet_t),
+                          100);
+        pkt_ready = false;
+        __HAL_UART_CLEAR_FLAG(&huart2, UART_CLEAR_OREF | UART_CLEAR_NEF |
+                                           UART_CLEAR_FEF | UART_CLEAR_PEF);
+        HAL_HalfDuplex_EnableReceiver(&huart2);
+        HAL_UARTEx_ReceiveToIdle_IT(&huart2, pkt_buf, sizeof(proto_packet_t));
       }
     }
     temperature_t temp = {0};
     temp_status_t status = read_temp(&cfg, &temp);
     if (status != TEMP_OK) {
-      fan_set_duty(&cfg, cfg.fan_temp_full_c);
+
+      fan_set_duty(&cfg, (cfg.fan_temp_full_c + cfg.fan_temp_on_c) / 2);
+      // fan_set_duty(&cfg, cfg.fan_temp_full_c);
       continue;
     }
 

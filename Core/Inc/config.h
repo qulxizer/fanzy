@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 typedef struct __attribute__((aligned(8))) {
+  int magic;
   bool temp_divider_pu;
   bool fan_pwm_inverted;
   bool ac_pullup;
@@ -31,6 +32,7 @@ config_status_t load_config(config_t *cfg);
 config_status_t write_cfg(config_t *cfg);
 
 // FLASH CONFIG
+#define CONFIG_MAGIC 0x46415A59u
 #define FZ_FLASH_LAST_PAGE_ADDR 0x08007800
 #define FZ_FLASH_LAST_PAGE_NUM 15
 
