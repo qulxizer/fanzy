@@ -163,8 +163,8 @@ int main(void) {
     temp_status_t status = read_temp(&cfg, &temp);
     if (status != TEMP_OK) {
 
-      fan_set_duty(&cfg, (cfg.fan_temp_full_c + cfg.fan_temp_on_c) / 2);
-      // fan_set_duty(&cfg, cfg.fan_temp_full_c);
+      // fan_set_duty(&cfg, (cfg.fan_temp_full_c + cfg.fan_temp_on_c) / 2);
+      fan_set_duty(&cfg, cfg.fan_temp_full_c);
       continue;
     }
 
