@@ -35,4 +35,5 @@ typedef struct __attribute__((packed)) {
 } proto_msg_init_t;
 
 proto_status_t handle_msg_init(void);
+proto_status_t proto_handle_pkt(proto_packet_t *pkt);
 #endif // !FZ_PROTO_H

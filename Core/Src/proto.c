@@ -8,18 +8,20 @@
 #include <string.h>
 
 proto_status_t handle_msg_init(void) {
-
+  HAL_StatusTypeDef st = HAL_HalfDuplex_EnableTransmitter(&huart2);
+  if (st != HAL_OK) {
+    return PROTO_ERR_ENABLE_TRANSMITTER;
+  }
   proto_msg_init_t msg = {.protocol_version = PROTO_SOF,
                           .device_uid = HAL_GetDEVID()};
 
   proto_packet_t pkt = {0};
-  pkt.sof = PROTO_SOF;
+  pkt.sof = PROTO_RESP_SOF;
   pkt.msg_id = PROTO_MSG_INIT;
   pkt.length = sizeof(msg);
   memcpy(pkt.payload, &msg, sizeof(msg));
   uint16_t tx_size = (sizeof(proto_packet_t) - PROTO_PAYLOAD) + pkt.length;
-  HAL_StatusTypeDef st =
-      HAL_UART_Transmit(&huart2, (uint8_t *)&pkt, tx_size, HAL_MAX_DELAY);
+  st = HAL_UART_Transmit(&huart2, (uint8_t *)&pkt, tx_size, HAL_MAX_DELAY);
   if (st != HAL_OK) {
     return PROTO_ERR_TRANSMIT;
   }
@@ -27,8 +29,8 @@ proto_status_t handle_msg_init(void) {
 }
 
 proto_status_t handle_msg_read_config(proto_packet_t *pkt);
-proto_status_t handle_pkt(proto_packet_t *pkt) {
-  if (pkt != NULL) {
+proto_status_t proto_handle_pkt(proto_packet_t *pkt) {
+  if (pkt == NULL) {
     return PROTO_ERR_NULL_PACKET;
   }
 
@@ -43,17 +45,9 @@ proto_status_t handle_pkt(proto_packet_t *pkt) {
     return handle_msg_read_config(pkt);
   }
 
-  st = HAL_HalfDuplex_EnableReceiver(&huart2);
-  if (st != HAL_OK) {
-    return PROTO_ERR_ENABLE_RECEIVER;
-  }
-
   return PROTO_OK;
 }
 proto_status_t handle_msg_read_config(proto_packet_t *pkt) {
-  if (pkt != NULL) {
-    return PROTO_ERR_NULL_PACKET;
-  }
   config_t cfg = {0};
   load_config(&cfg);
 
@@ -68,6 +62,7 @@ proto_status_t handle_msg_read_config(proto_packet_t *pkt) {
   if (st != HAL_OK) {
     return PROTO_ERR_TRANSMIT;
   }
+
   return PROTO_OK;
 }
 

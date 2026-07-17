@@ -34,6 +34,7 @@
 #include "stdint.h"
 #include "temp.h"
 #include <stdint.h>
+#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -66,18 +67,28 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#define PKT_BUF_SIZE sizeof(proto_packet_t)
 
-volatile bool pkt_ready = false;
-uint8_t pkt_buf[sizeof(proto_packet_t)];
+static uint8_t uart_rx_buf[PKT_BUF_SIZE];
+static uint8_t pkt_buf[PKT_BUF_SIZE];
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
-  if (huart->Instance != huart2.Instance) {
+static volatile uint16_t pkt_len;
+static volatile bool pkt_ready;
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size) {
+  if (huart != &huart2) {
     return;
   }
-  pkt_ready = true;
-  HAL_UARTEx_ReceiveToIdle_IT(&huart2, pkt_buf, sizeof(proto_packet_t));
-}
 
+  if (!pkt_ready) {
+    memcpy(pkt_buf, uart_rx_buf, size);
+    pkt_len = size;
+    pkt_ready = true;
+  }
+
+  // Immediately listen for the next packet.
+  HAL_UARTEx_ReceiveToIdle_IT(&huart2, uart_rx_buf, sizeof(uart_rx_buf));
+}
 /* USER CODE END 0 */
 
 /**
@@ -128,9 +139,8 @@ int main(void) {
 
   fan_init();
   handle_msg_init();
-
   HAL_HalfDuplex_EnableReceiver(&huart2);
-  HAL_UARTEx_ReceiveToIdle_IT(&huart2, pkt_buf, sizeof(proto_packet_t));
+  HAL_UARTEx_ReceiveToIdle_IT(&huart2, uart_rx_buf, sizeof(uart_rx_buf));
 
   /* USER CODE END 2 */
 
@@ -138,22 +148,16 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     if (pkt_ready) {
+      // uint16_t len = pkt_len;
       proto_packet_t *pkt = (proto_packet_t *)pkt_buf;
-      proto_packet_t resp_pkt = {0};
-
-      if (pkt->msg_id == 1) {
-        resp_pkt.msg_id = 99;
-        resp_pkt.length = 0;
-        HAL_UART_AbortReceive_IT(&huart2);
-        HAL_HalfDuplex_EnableTransmitter(&huart2);
-        HAL_UART_Transmit(&huart2, (uint8_t *)&resp_pkt, sizeof(proto_packet_t),
-                          100);
-        pkt_ready = false;
-        __HAL_UART_CLEAR_FLAG(&huart2, UART_CLEAR_OREF | UART_CLEAR_NEF |
-                                           UART_CLEAR_FEF | UART_CLEAR_PEF);
-        HAL_HalfDuplex_EnableReceiver(&huart2);
-        HAL_UARTEx_ReceiveToIdle_IT(&huart2, pkt_buf, sizeof(proto_packet_t));
+      proto_status_t st = proto_handle_pkt(pkt);
+      HAL_HalfDuplex_EnableReceiver(&huart2);
+      HAL_UARTEx_ReceiveToIdle_IT(&huart2, uart_rx_buf, sizeof(uart_rx_buf));
+      if (st != PROTO_OK) {
+        continue;
       }
+
+      pkt_ready = false;
     }
     temperature_t temp = {0};
     temp_status_t status = read_temp(&cfg, &temp);
