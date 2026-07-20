@@ -7,27 +7,34 @@
 #include <string.h>
 
 config_status_t write_cfg(config_t *cfg) {
-  static FLASH_EraseInitTypeDef EraseInitStruct;
-  uint32_t PAGEError;
-  EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
-  EraseInitStruct.Page = FZ_FLASH_LAST_PAGE_NUM;
-  EraseInitStruct.NbPages = 1;
+  FLASH_EraseInitTypeDef erase = {
+      .TypeErase = FLASH_TYPEERASE_PAGES,
+      .Page = FZ_FLASH_LAST_PAGE_NUM,
+      .NbPages = 1,
+  };
+
+  uint32_t page_error;
+
+  config_t temp;
+  memcpy(&temp, cfg, sizeof(temp));
+
   HAL_FLASH_Unlock();
 
-  if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK) {
+  if (HAL_FLASHEx_Erase(&erase, &page_error) != HAL_OK) {
+    HAL_FLASH_Lock();
     return HAL_FLASH_GetError();
   }
 
-  uint64_t *data_ptr = (uint64_t *)cfg;
-  uint32_t flash_addr = 0x08007800; // Start of Page 15
+  uint64_t *data = (uint64_t *)&temp;
+  uint32_t addr = FZ_FLASH_LAST_PAGE_ADDR;
 
-  for (int i = 0; i < 7; i++) {
-    if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, flash_addr,
-                          data_ptr[i]) != HAL_OK) {
+  for (uint32_t i = 0; i < sizeof(temp) / 8; i++) {
+    if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, addr, data[i]) !=
+        HAL_OK) {
+      HAL_FLASH_Lock();
       return HAL_FLASH_GetError();
-      break;
     }
-    flash_addr += 8;
+    addr += 8;
   }
 
   HAL_FLASH_Lock();

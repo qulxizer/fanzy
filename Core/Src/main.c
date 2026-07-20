@@ -80,13 +80,12 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size) {
     return;
   }
 
-  if (!pkt_ready) {
+  if (!pkt_ready && size <= PKT_BUF_SIZE) {
     memcpy(pkt_buf, uart_rx_buf, size);
     pkt_len = size;
     pkt_ready = true;
   }
 
-  // Immediately listen for the next packet.
   HAL_UARTEx_ReceiveToIdle_IT(&huart2, uart_rx_buf, sizeof(uart_rx_buf));
 }
 /* USER CODE END 0 */
@@ -148,6 +147,7 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     if (pkt_ready) {
+      pkt_ready = false;
       // uint16_t len = pkt_len;
       proto_packet_t *pkt = (proto_packet_t *)pkt_buf;
       proto_status_t st = proto_handle_pkt(pkt);
@@ -156,13 +156,10 @@ int main(void) {
       if (st != PROTO_OK) {
         continue;
       }
-
-      pkt_ready = false;
     }
     temperature_t temp = {0};
     temp_status_t status = read_temp(&cfg, &temp);
     if (status != TEMP_OK) {
-
       // fan_set_duty(&cfg, (cfg.fan_temp_full_c + cfg.fan_temp_on_c) / 2);
       fan_set_duty(&cfg, cfg.fan_temp_full_c);
       continue;

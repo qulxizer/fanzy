@@ -27,6 +27,9 @@ static void fan_pwm_set_raw(uint8_t duty) {
 }
 
 void fan_set_duty(config_t *cfg, temperature_t temp) {
+
+  fan_pwm_set_raw(30);
+  return;
   if (temp < cfg->fan_temp_on_c) {
     fan_pwm_set_raw(0);
     return;

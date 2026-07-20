@@ -18,7 +18,8 @@ typedef enum {
 
 typedef enum : uint8_t {
   PROTO_MSG_INIT = 0x67,
-  PROTO_MSG_READ_CONFIG
+  PROTO_MSG_READ_CONFIG,
+  PROTO_MSG_WRITE_CONFIG
 } proto_msg_t;
 
 typedef struct __attribute__((packed)) {
@@ -35,5 +36,6 @@ typedef struct __attribute__((packed)) {
 } proto_msg_init_t;
 
 proto_status_t handle_msg_init(void);
+proto_status_t handle_msg_write_config(proto_packet_t *pkt);
 proto_status_t proto_handle_pkt(proto_packet_t *pkt);
 #endif // !FZ_PROTO_H

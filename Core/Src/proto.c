@@ -29,6 +29,7 @@ proto_status_t handle_msg_init(void) {
 }
 
 proto_status_t handle_msg_read_config(proto_packet_t *pkt);
+proto_status_t handle_msg_write_config(proto_packet_t *pkt);
 proto_status_t proto_handle_pkt(proto_packet_t *pkt) {
   if (pkt == NULL) {
     return PROTO_ERR_NULL_PACKET;
@@ -43,6 +44,8 @@ proto_status_t proto_handle_pkt(proto_packet_t *pkt) {
     return handle_msg_init();
   case PROTO_MSG_READ_CONFIG:
     return handle_msg_read_config(pkt);
+  case PROTO_MSG_WRITE_CONFIG:
+    return handle_msg_write_config(pkt);
   }
 
   return PROTO_OK;
@@ -67,11 +70,14 @@ proto_status_t handle_msg_read_config(proto_packet_t *pkt) {
 }
 
 proto_status_t handle_msg_write_config(proto_packet_t *pkt) {
-  if (pkt != NULL) {
+  if (pkt == NULL) {
     return PROTO_ERR_NULL_PACKET;
   }
-  config_t *cfg = (config_t *)pkt->payload;
-  write_cfg(cfg);
+
+  config_t cfg;
+  memcpy(&cfg, pkt->payload, sizeof(cfg));
+
+  write_cfg(&cfg);
 
   return PROTO_OK;
 }
