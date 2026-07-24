@@ -1,0 +1,44 @@
+# ARM Cross-Compilation Workflow for stm32g031j6m6
+# This workflow builds the project for ARM Cortex-M0+ using the gcc-arm-none-eabi toolchain
+name: ARM Cross-Compile
+
+on:
+  push:
+    branches: [ "main", "stm32g031j6m6" ]
+  pull_request:
+    branches: [ "main" , "stm32g031j6m6"]
+  workflow_dispatch:
+
+
+env:
+  BUILD_TYPE: Release
+  TOOLCHAIN_FILE: cmake/gcc-arm-none-eabi.cmake
+
+jobs:
+  build-arm:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install ARM toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
+
+    - name: Create build directory
+      run: mkdir -p ${{github.workspace}}/build
+
+    - name: Configure CMake with ARM toolchain
+      working-directory: ${{github.workspace}}/build
+      run: cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.TOOLCHAIN_FILE}}
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      run: cmake --build . --config ${{env.BUILD_TYPE}} --verbose
+
+    - name: Display binary info
+      working-directory: ${{github.workspace}}/build
+      run: |
+        arm-none-eabi-size *.elf || true
+        arm-none-eabi-objdump -h *.elf || true
