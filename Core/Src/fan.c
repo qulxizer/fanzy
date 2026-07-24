@@ -27,7 +27,13 @@ static void fan_pwm_set_raw(uint8_t duty) {
 }
 
 void fan_set_duty(config_t *cfg, temperature_t temp) {
+  GPIO_PinState ac_state = ac_signal_read();
+
   if (temp < cfg->fan_temp_on_c) {
+    if (ac_state == GPIO_PIN_RESET) {
+      fan_pwm_set_raw(cfg->ac_min_speed);
+      return;
+    }
     fan_pwm_set_raw(0);
     return;
   }
@@ -41,7 +47,7 @@ void fan_set_duty(config_t *cfg, temperature_t temp) {
   int duty = cfg->fan_min_duty +
              (int)(ratio * (cfg->fan_max_duty - cfg->fan_min_duty));
 
-  if (ac_signal_read() == GPIO_PIN_RESET) {
+  if (ac_state == GPIO_PIN_RESET) {
     duty = duty * cfg->ac_multiplier;
     if (duty < cfg->ac_min_speed) {
       duty = cfg->ac_min_speed;

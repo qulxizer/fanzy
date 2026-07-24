@@ -28,7 +28,7 @@ config_status_t write_cfg(config_t *cfg) {
   uint64_t *data = (uint64_t *)&temp;
   uint32_t addr = FZ_FLASH_LAST_PAGE_ADDR;
 
-  for (uint32_t i = 0; i < sizeof(temp) / 8; i++) {
+  for (uint32_t i = 0; i <= sizeof(temp) / 8; i++) {
     if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, addr, data[i]) !=
         HAL_OK) {
       HAL_FLASH_Lock();
@@ -71,7 +71,9 @@ config_status_t init_config(void) {
                   .temp_max_valid_c = TEMP_MAX_VALID_C,
                   .temp_min_valid_c = TEMP_MIN_VALID_C,
                   .temp_divider_pu = TEMP_DIVIDER_PULLUP,
-                  .temp_r_fixed_ohm = TEMP_R_FIXED_OHM};
+                  .temp_r_fixed_ohm = TEMP_R_FIXED_OHM
+
+  };
   return write_cfg(&cfg);
   HAL_FLASH_Lock();
 }
