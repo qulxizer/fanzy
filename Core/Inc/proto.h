@@ -13,13 +13,15 @@ typedef enum {
   PROTO_ERR_TRANSMIT,
   PROTO_ERR_NULL_PACKET,
   PROTO_ERR_ENABLE_RECEIVER,
+  PROTO_ERR_FAILED_TO_FETCH,
   PROTO_ERR_ENABLE_TRANSMITTER
 } proto_status_t;
 
 typedef enum : uint8_t {
   PROTO_MSG_INIT = 0x67,
   PROTO_MSG_READ_CONFIG,
-  PROTO_MSG_WRITE_CONFIG
+  PROTO_MSG_WRITE_CONFIG,
+  PROTO_MSG_READ_SENSORS
 } proto_msg_t;
 
 typedef struct __attribute__((packed)) {
@@ -34,6 +36,11 @@ typedef struct __attribute__((packed)) {
   uint32_t protocol_version;
   uint32_t device_uid;
 } proto_msg_init_t;
+
+typedef struct __attribute__((packed)) {
+  bool AC;
+  float temperature;
+} proto_msg_sensors_t;
 
 proto_status_t handle_msg_init(void);
 proto_status_t handle_msg_write_config(proto_packet_t *pkt);

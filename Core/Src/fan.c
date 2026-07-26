@@ -11,7 +11,7 @@ void fan_init(void) {
   fan_pwm_set_raw(0);
 }
 
-static GPIO_PinState ac_signal_read(void) {
+GPIO_PinState ac_signal_read(void) {
   return HAL_GPIO_ReadPin(AC_SIG_GPIO_Port, AC_SIG_Pin);
 }
 
