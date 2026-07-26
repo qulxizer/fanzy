@@ -106,9 +106,6 @@ temp_status_t read_temp(config_t *cfg, temperature_t *temp) {
     return TEMP_ERR_NULL;
   }
 
-  *temp = 30;
-  return TEMP_OK;
-
   uint16_t adc = 0;
   temp_status_t status = adc_read_temp_channel(&adc);
   if (status != TEMP_OK) {
